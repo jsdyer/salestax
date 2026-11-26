@@ -3,8 +3,10 @@
 [Open the calculator](https://coolcode.ca/salestax/).
 
 <!-- coolcode:guide -->
-Enter a receipt total and choose **Remove included tax**, or enter a pre-tax price and choose **Add sales tax**. Select the transaction date and province or territory to see each component in Canadian dollars. Try the [Nova Scotia reverse HST example](https://coolcode.ca/salestax/nova-scotia-reverse-hst/) to see the effect of the April 2025 rate change.
+Enter a receipt total to remove the included tax, or enter a pre-tax price to calculate the checkout total. Choose the transaction date and province or territory to see each tax component in Canadian dollars.
 <!-- /coolcode:guide -->
+
+Try the [Nova Scotia reverse HST example](https://coolcode.ca/salestax/nova-scotia-reverse-hst/) to see the effect of the April 2025 rate change.
 
 General rates cover all 13 jurisdictions from April 1, 2013. Each component rounds to the nearest cent using integer cents and thousandths of one percentage point. In reverse mode the display lists any cent adjustment needed to reconcile a tax-included receipt with component rounding. The selected jurisdiction and date are supplied by the visitor. This tool assumes a fully taxable ordinary purchase. It does not determine place-of-supply, exemptions, rebates or special product rates. Amounts stay local. The standard CoolCode counter receives the tool ID.
 
