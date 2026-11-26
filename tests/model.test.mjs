@@ -1,21 +1,31 @@
-import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanLines } from '../web/model.mjs';
-test('trims, removes blanks and preserves first-seen order', () => {
-  assert.deepEqual(cleanLines('  Halifax\nLangley\nHalifax\n\nVancouver  '), {
-    text: 'Halifax\nLangley\nVancouver', count: 3, removed: 1,
-  });
+import test from 'node:test';
+import {readFileSync} from 'node:fs';
+import {cents, ratesFor, calculate} from '../web/model.mjs';
+const {regions} = JSON.parse(readFileSync(new URL('../web/data/rates.json', import.meta.url)));
+test('provincial changes take effect on the stated dates', () => {
+  assert.equal(ratesFor(regions.NS,'2025-03-31').HST, 15);
+  assert.equal(ratesFor(regions.NS,'2025-04-01').HST, 14);
+  assert.equal(ratesFor(regions.NB,'2016-07-01').HST, 15);
+  assert.equal(ratesFor(regions.MB,'2019-06-30').RST, 8);
+  assert.equal(ratesFor(regions.MB,'2019-07-01').RST, 7);
+  assert.throws(() => ratesFor(regions.MB,'2012-01-01'));
 });
-test('supports Windows and old Mac line endings', () => {
-  assert.equal(cleanLines('a\r\nb\ra').text, 'a\nb');
+test('receipt figures balance in both directions in each jurisdiction', () => {
+  for (const region of Object.values(regions)) {
+    const rates = ratesFor(region, '2026-01-01');
+    for (const amount of [1, 2, 3, 9, 10, 99, 100, 11400, 9999999999]) {
+      const forward = calculate(amount, rates);
+      assert.equal(calculate(forward.total, rates, true).base, amount);
+      const reverse = calculate(amount, rates, true);
+      assert.equal(reverse.base + reverse.parts.reduce((n,x)=>n+x.value,0) + reverse.adjustment, amount);
+    }
+  }
 });
-test('empty text and whitespace produce an empty result', () => {
-  assert.deepEqual(cleanLines(' \n\t'), { text: '', count: 0, removed: 0 });
+test('Quebec rounds each tax and reverse calculates Nova Scotia included tax', () => {
+  const qc = calculate(cents('100.00'), ratesFor(regions.QC, '2026-11-25'));
+  assert.deepEqual(qc.parts.map(p => p.value), [500,998]);
+  assert.equal(qc.total,11498);
+  assert.equal(calculate(11400, {HST:14}, true).base,10000);
+  assert.throws(() => cents('1.234')); assert.throws(() => cents('-1')); assert.equal(cents('0.01'),1);
 });
-test('preserves case and Unicode', () => {
-  assert.equal(cleanLines('Québec\nquébec\n東京\nQuébec').text, 'Québec\nquébec\n東京');
-});
-test('treats markup as ordinary text', () => {
-  assert.equal(cleanLines('<script>alert(1)</script>\n<script>alert(1)</script>').text, '<script>alert(1)</script>');
-});
-test('rejects non-text input', () => { assert.throws(() => cleanLines(null), TypeError); });

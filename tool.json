@@ -1,16 +1,23 @@
 {
-  "id": "coolcode-tool-template",
-  "title": "CoolCode Tool Starter",
-  "description": "A browser-only example that trims lines and removes exact duplicates.",
-  "category": "security",
-  "tags": ["text", "lines", "duplicates"],
-  "icon": "scan-search",
-  "url": "/coolcode-tool-template/",
-  "source": "https://github.com/jsdyer/coolcode-tool-template",
+  "id": "salestax",
+  "title": "Canadian Sales Tax Calculator",
+  "description": "Add or remove GST, HST, PST, RST and QST for a purchase in any Canadian province or territory.",
+  "category": "money",
+  "tags": [
+    "GST",
+    "HST",
+    "PST",
+    "QST",
+    "reverse tax",
+    "receipts"
+  ],
+  "icon": "calculator",
+  "url": "/salestax/",
+  "source": "https://github.com/jsdyer/salestax",
   "hosting": "project",
   "access": "browser",
   "data_info": {
-    "mode": "local",
-    "detail": "The browser reads the text you paste and compares its lines."
+    "mode": "reference",
+    "detail": "Dated standard sales tax rates are verified against the Canada Revenue Agency rate table."
   }
 }

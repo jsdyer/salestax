@@ -1,6 +1,7 @@
-"""Exercise the built starter at a project subpath in Chromium."""
+"""Exercise the built application at a project subpath in Chromium."""
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+import os
 from pathlib import Path
 import shutil
 import tempfile
@@ -24,27 +25,26 @@ def main():
         threading.Thread(target=server.serve_forever, daemon=True).start()
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch()
+                browser = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_EXECUTABLE") or None)
                 page = browser.new_page(viewport={"width": 1280, "height": 1000})
                 errors = []
                 page.on("pageerror", lambda error: errors.append(str(error)))
                 page.goto(f"http://127.0.0.1:{server.server_port}/example-tool/")
-                page.locator("#sample").click()
-                assert page.locator("#output").input_value() == "Halifax\nLangley\nVancouver"
-                assert "1 duplicate removed" in page.locator("#status").inner_text()
-                page.locator("#input").fill('<img src=x onerror="alert(1)">\n<img src=x onerror="alert(1)">')
-                assert page.locator("#output").input_value() == '<img src=x onerror="alert(1)">'
-                assert page.locator("img").count() == 0
-                page.locator("#clear").click()
-                assert page.locator("#output").input_value() == ""
-                page.locator("#sample").click()
+                assert "$112.00" in page.locator("#receipt").inner_text()
+                page.locator("#region").select_option("QC")
+                assert "$114.98" in page.locator("#receipt").inner_text()
+                page.goto(f"http://127.0.0.1:{server.server_port}/example-tool/nova-scotia-reverse-hst/")
+                assert page.locator("#mode").input_value() == "reverse"
+                page.locator("#day").fill("2025-03-31")
+                page.locator("#amount").fill("115.00")
+                assert "$100.00" in page.locator("#receipt").inner_text()
                 page.screenshot(path=str(screenshots / "desktop.png"), full_page=True)
                 page.set_viewport_size({"width": 390, "height": 844})
                 assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
                 page.screenshot(path=str(screenshots / "mobile.png"), full_page=True)
                 assert not errors, errors
                 browser.close()
-            print("Browser checks passed: project subpath, sample, clear, safe text and mobile layout")
+            print("Browser checks passed for routes, controls and mobile layout")
         finally:
             server.shutdown()
 
