@@ -18,6 +18,7 @@
   "access": "browser",
   "data_info": {
     "mode": "reference",
-    "detail": "Dated standard sales tax rates are verified against the Canada Revenue Agency rate table."
+    "detail": "Dated standard sales tax rates are verified against the Canada Revenue Agency rate table.",
+    "cadence": "Monthly"
   }
 }
